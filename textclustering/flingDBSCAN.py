@@ -30,20 +30,9 @@ class flingDBSCAN:
         if epsilon:
             self.epsilon = epsilon
         else:
-<<<<<<< Updated upstream
-            if method == 'glove':
-                self.epsilon = self.getBestDistance('glove')
-                print("\nBest epsilon computed on GLOVE =",self.epsilon,"\n")
-            else:
-                self.epsilon = self.getBestDistance('tfidf')
-                print("\nBest epsilon computed on GLOVE-TFIDF =",self.epsilon,"\n")
-            
-    def getBestDistance(self,method):
-=======
             self.setBestDistance()
 
     def setBestDistance(self):
->>>>>>> Stashed changes
         numx = 100
         numHalf = int(numx/2)
         doca,docb = [],[]
@@ -57,14 +46,7 @@ class flingDBSCAN:
 
         for doc_1 in range(len(doca)):
             for doc_2 in range(len(docb)):
-<<<<<<< Updated upstream
-                if method == 'glove':
-                    distanceSample.append(self.getDistance(doc_1,doc_2,'glove'))
-                else:
-                    distanceSample.append(self.getDistance(doc_1,doc_2,'tfidf'))
-=======
                 distanceSample.append(self.getDistance(doc_1,doc_2,self.method))
->>>>>>> Stashed changes
                 cov = doc_1*numHalf + doc_2
                 prog=(cov+1)/total
                 self.drawProgressBar(prog)
@@ -173,11 +155,6 @@ class flingDBSCAN:
             dv_2 = self.data['glove-vector'][int(docId_2)]
         elif method == 'tfidf':
             dv_1 = self.data['tfidf2vec-tfidf'][int(docId_1)]
-<<<<<<< Updated upstream
-            dv_2 = self.data['tfidf2vec-tfidf'][int(docId_2)]           
-        dist = np.linalg.norm(dv_1-dv_2)
-        return dist
-=======
             dv_2 = self.data['tfidf2vec-tfidf'][int(docId_2)]
         elif method == 'transformer':
             dv_1 = self.data['transformer_vector'][int(docId_1)]
@@ -186,8 +163,7 @@ class flingDBSCAN:
                 return np.dot(dv_1, dv_2) / (np.linalg.norm(dv_1) * np.linalg.norm(dv_2))
 
         return np.linalg.norm(dv_1-dv_2)
->>>>>>> Stashed changes
-    
+
     def addClusterLabel(self,label):
         vec = []
         for el in self.clusterMetadata.keys():
