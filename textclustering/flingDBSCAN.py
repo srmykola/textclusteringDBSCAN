@@ -12,7 +12,7 @@ import operator, string, argparse, math, random, statistics
 import matplotlib.pyplot as plt
 
 class flingDBSCAN:
-    def __init__(self,data,epsilon,minPts,method, metric, progress: bool = False):
+    def __init__(self, data, epsilon, minPts, method, metric, progress: bool = False):
         self.data = data
         self.method = method
         self.metric = metric
@@ -30,20 +30,10 @@ class flingDBSCAN:
         if epsilon:
             self.epsilon = epsilon
         else:
-<<<<<<< Updated upstream
-            if method == 'glove':
-                self.epsilon = self.getBestDistance('glove')
-                print("\nBest epsilon computed on GLOVE =",self.epsilon,"\n")
-            else:
-                self.epsilon = self.getBestDistance('tfidf')
-                print("\nBest epsilon computed on GLOVE-TFIDF =",self.epsilon,"\n")
-            
-    def getBestDistance(self,method):
-=======
             self.setBestDistance()
 
     def setBestDistance(self):
->>>>>>> Stashed changes
+
         numx = 100
         numHalf = int(numx/2)
         doca,docb = [],[]
@@ -57,17 +47,11 @@ class flingDBSCAN:
 
         for doc_1 in range(len(doca)):
             for doc_2 in range(len(docb)):
-<<<<<<< Updated upstream
-                if method == 'glove':
-                    distanceSample.append(self.getDistance(doc_1,doc_2,'glove'))
-                else:
-                    distanceSample.append(self.getDistance(doc_1,doc_2,'tfidf'))
-=======
-                distanceSample.append(self.getDistance(doc_1,doc_2,self.method))
->>>>>>> Stashed changes
+                distanceSample.append(self.getDistance(doc_1,doc_2))
                 cov = doc_1*numHalf + doc_2
                 prog=(cov+1)/total
-                self.drawProgressBar(prog)
+                if self.progress:
+                    self.drawProgressBar(prog)
 
         if self.progress:
             plt.show(plt.hist(distanceSample,bins=20))
@@ -95,34 +79,42 @@ class flingDBSCAN:
             print(j, self.clusterMetadata[j])
          
     # range query equivalent function
-    def findNeighborOf(self,ptIndex,method):
+    def findNeighborOf(self, ptIndex):
         distance = {}
         
         #first vector
-        if method == 'glove':
+        if self.method == 'glove':
             dv_1 = self.data['glove-vector'][int(ptIndex)] 
-        elif method == 'tfidf':
+        elif self.method == 'tfidf':
             dv_1 = self.data['tfidf2vec-tfidf'][int(ptIndex)]
+        elif self.method == 'transformer':
+            dv_1 = self.data['transformer_vector'][int(ptIndex)]
         
         #iterating over the whole data for the second vector 
-        if method == 'tfidf':
+        if self.method == 'tfidf':
             for j in range(self.nDocs):
                 dv_2 = self.data['tfidf2vec-tfidf'][j]
                 if j!=ptIndex:
-                    distx = self.getDistance(ptIndex,j,'tfidf')
+                    distx = self.getDistance(ptIndex,j)
                     distance[j] = distx
-        elif method == 'glove':
+        elif self.method == 'glove':
             for j in range(self.nDocs):
                 dv_2 = self.data['glove-vector'][j]
                 if j!=ptIndex:
-                    distx = self.getDistance(ptIndex,j,'glove')
+                    distx = self.getDistance(ptIndex,j)
+                    distance[j] = distx
+        elif self.method == 'transformer':
+            for j in range(self.nDocs):
+                dv_2 = self.data['transformer_vector'][j]
+                if j!=ptIndex:
+                    distx = self.getDistance(ptIndex,j)
                     distance[j] = distx
         
         # keeping only elements at a distnce of less than epsilon (or more for the cosine metric)
         if self.metric == 'cosine':
             tempDistances = {key: value for (key, value) in distance.items() if value > self.epsilon}
         else:
-            tempDistances = {key:value for (key,value) in distance.items() if value<self.epsilon}
+            tempDistances = {key:value for (key,value) in distance.items() if value < self.epsilon}
 
         newDistances = {key:value for (key,value) in tempDistances.items() if self.clusterMetadata[key]=='no_cluster'}
         # keeping the cluster only if we 
@@ -136,10 +128,9 @@ class flingDBSCAN:
         self.clusterMetadata[0]='cluster_0'
         for k in range(self.nDocs):
             if self.clusterMetadata[k] == 'no_cluster':
-                if self.method=='glove':
-                    neighbors = self.findNeighborOf(k,'glove')
-                else:
-                    neighbors = self.findNeighborOf(k,'tfidf')
+
+                neighbors = self.findNeighborOf(k)
+
                 if neighbors:
                     self.clusterCount+=1
                     clusterName = f'cluster_{self.clusterCount}'
@@ -149,10 +140,9 @@ class flingDBSCAN:
                     for nbPoint in neighbors:
                         if self.clusterMetadata[nbPoint] == 'no_cluster':
                             self.clusterMetadata[nbPoint] = clusterName
-                    if self.method=='glove':
-                        innerNeighbors = self.findNeighborOf(k,'glove')
-                    else:
-                        innerNeighbors = self.findNeighborOf(k,'tfidf')
+
+                    innerNeighbors = self.findNeighborOf(k)
+
                     if innerNeighbors:
                         for nb in innerNeighbors:
                             self.clusterMetadata[nb] = clusterName
@@ -167,27 +157,22 @@ class flingDBSCAN:
         print("\n",self.clusterCount,"clusters formed!")
 
             
-    def getDistance(self,docId_1,docId_2,method):
-        if method == 'glove':
+    def getDistance(self,docId_1,docId_2):
+
+        if self.method == 'glove':
             dv_1 = self.data['glove-vector'][int(docId_1)]
             dv_2 = self.data['glove-vector'][int(docId_2)]
-        elif method == 'tfidf':
+        elif self.method == 'tfidf':
             dv_1 = self.data['tfidf2vec-tfidf'][int(docId_1)]
-<<<<<<< Updated upstream
-            dv_2 = self.data['tfidf2vec-tfidf'][int(docId_2)]           
-        dist = np.linalg.norm(dv_1-dv_2)
-        return dist
-=======
             dv_2 = self.data['tfidf2vec-tfidf'][int(docId_2)]
-        elif method == 'transformer':
+        elif self.method == 'transformer':
             dv_1 = self.data['transformer_vector'][int(docId_1)]
             dv_2 = self.data['transformer_vector'][int(docId_2)]
             if self.metric == 'cosine':
                 return np.dot(dv_1, dv_2) / (np.linalg.norm(dv_1) * np.linalg.norm(dv_2))
 
         return np.linalg.norm(dv_1-dv_2)
->>>>>>> Stashed changes
-    
+
     def addClusterLabel(self,label):
         vec = []
         for el in self.clusterMetadata.keys():
