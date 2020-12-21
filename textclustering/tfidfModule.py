@@ -10,16 +10,14 @@ import operator, string, argparse, math
 
 # class to read and preprocess data
 class dataProcessor:
-    def __init__(self, fname, keep_factors = ['Job Description', 'Company Name', 'Industry'],
-                 group_column = 'Industry'
-                 ):
-        self.dataInitial = pd.read_csv(fname, encoding="utf-8", skiprows=skiprows)
-        self.dataInitialSmall = self.dataInitial[keep_factors]
+    def __init__(self, fname, keep_factors = ['Job Description', 'Company Name', 'Industry'], group_column = 'Industry'):
+        self.dataInitial = pd.read_csv(fname, encoding="latin")
+        self.dataInitialSmall = self.dataInitial[['Job Description', 'Company Name', 'Industry']]
         self.swords = set(stopwords.words('english'))
         #print(len(self.swords),"stopwords present!")
-        # self.dataInitialGrouped = self.dataInitialSmall.groupby([group_column]).count()
-        # pd.set_option('display.max_rows', 50)
-        # print(self.dataInitialGrouped.sort_values(by=['Job Description'], ascending=False))
+        self.dataInitialGrouped = self.dataInitialSmall.groupby([group_column]).count()
+        pd.set_option('display.max_rows', 50)
+        print(self.dataInitialGrouped.sort_values(by=['Job Description'], ascending=False))
 
     # pipeline for purifying the text, write-pipeline, so just output filename can be provided
     def rem_stop_punct(self,originalText, ofilename):
