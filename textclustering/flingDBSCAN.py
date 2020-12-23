@@ -1,14 +1,8 @@
-import matplotlib as mpl
-from imp import reload
-from nltk.corpus import stopwords
-from collections import Counter
-import pandas as pd
 import numpy as np
-import matplotlib as mpl
-import matplotlib.pyplot as plt
-import nltk,re,pprint
-import sys,glob,os
-import operator, string, argparse, math, random, statistics
+
+import sys
+import random
+import statistics
 import matplotlib.pyplot as plt
 
 class flingDBSCAN:
@@ -163,8 +157,8 @@ class flingDBSCAN:
             dv_1 = self.data['glove-vector'][int(docId_1)]
             dv_2 = self.data['glove-vector'][int(docId_2)]
         elif self.method == 'tfidf':
-            dv_1 = self.data['tfidf2vec-tfidf'][int(docId_1)]
-            dv_2 = self.data['tfidf2vec-tfidf'][int(docId_2)]
+            dv_1 = np.array(self.data['tfidf2vec-tfidf'][int(docId_1)])
+            dv_2 = np.array(self.data['tfidf2vec-tfidf'][int(docId_2)])
         elif self.method == 'transformer':
             dv_1 = self.data['transformer_vector'][int(docId_1)]
             dv_2 = self.data['transformer_vector'][int(docId_2)]
